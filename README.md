@@ -8,8 +8,6 @@ Simulations of the Quantum Optomechanical Pendulum Clock.
 - [Setup](#setup)
 - [Running the Simulations](#running-the-simulations)
 - [Editing Parameters](#editing-parameters)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Introduction
 This repository contains MATLAB simulations for the Quantum Optomechanical Pendulum Clock. The simulations are organized into different subfolders, each dealing with specific aspects of the project.
@@ -73,5 +71,3 @@ These code is also called from other codes.
 You don't need to touch these, there are really no parameters to modify
 
 
-## License
-State the license under which the project is distributed.
