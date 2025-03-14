@@ -20,17 +20,11 @@ This repository contains MATLAB simulations for the Quantum Optomechanical Pendu
 - `Multiple_atoms`: Focuses on the multi-atom scenario, produces Figs 9-11 of the paper.
 
 ## Setup
-It is assumed that you have some basic knowledge about MATLAB. In particular, on your first try, you may get errors such as file x was not found, unknown variable, etc, which you should think about how to resolve. But in principle everything should work fine.
+It is assumed that you have some basic knowledge about MATLAB. On your first attempt, you may encounter errors such as missing files or unknown variables, which you should troubleshoot accordingly. But in principle everything should work fine.
 
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/Mehboudi/PendulumClocks.git
-    ```
-2. Navigate to the project directory:
-    ```sh
-    cd PendulumClocks
-    ```
-3. Ensure you have MATLAB installed on your system.
+1. Download all the folders/files
+2. Open MATLAB and Navigate to the desired directory (i.e., one of the folders):
+3. Either run the codes on command line, like run_factorisation_and_resample.m, or open the file run_factorisation_and_resample.m and run the codes from the Editor (or Live_Editor) menu. This gives you the option to change parameters and run section by section. Specially usefull if you have already simulated the necessary data.
 
 ## Running the Simulations
 You always have to simulate some data first (should be done for each folder/subfolder separately. You cannot count on the data of one folder for another folder; they focus on different aspect of the project). This is done by opening the code called run_factorisation_and_resample.m in the respective folder. You can either run the full code in one go or run it section by section. I explain the section by section style: start by running the first section of the code, which (monte-carlo) simulates the trajectories of the clock and saves them in the same directory. This can take a while depending on the parameters, namely the number of iterations (trajectories), number of atoms, total trajectory time etc; that's why the data is saved automatically so that if you close matlab, you won't lose the effort. For the graphs in the paper, this is of the order of a day-week. But for tests you can run it for shorter times (see below).
