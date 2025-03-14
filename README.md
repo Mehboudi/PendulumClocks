@@ -36,7 +36,9 @@ It is assumed that you have some basic knowledge about MATLAB. In particular, on
 3. Ensure you have MATLAB installed on your system.
 
 ## Running the Simulations
-You always have to simulate some data first (should be done for each folder/subfolder separately. You cannot count on the data of one folder for another folder; they focus on different aspect of the project). This is done by opening the code called run_factorisation_and_resample.m in the respective folder, and then running the first section of the code. This can take a while depending on the parameters, namely the number of iterations (trajectories), number of atoms, total trajectory time etc. For the graphs in the paper, this is of the order of a day-week. But for tests you can run it for shorter times (see below).
+You always have to simulate some data first (should be done for each folder/subfolder separately. You cannot count on the data of one folder for another folder; they focus on different aspect of the project). This is done by opening the code called run_factorisation_and_resample.m in the respective folder. You can either run the full code in one go or run it section by section. I explain the section by section style: start by running the first section of the code, which (monte-carlo) simulates the trajectories of the clock and saves them in the same directory. This can take a while depending on the parameters, namely the number of iterations (trajectories), number of atoms, total trajectory time etc. For the graphs in the paper, this is of the order of a day-week. But for tests you can run it for shorter times (see below).
+Then you can move to the next section of the code and press run section, and move forward section by section. These sections, depending on the folder, will load the data and analyze it. They will produce the results as graphs. 
+If you want to run the code again tomorrow, you don't have to run the first section again, as your data is already saved. Just move on to the analysis sections. 
 ### Single_atom_zero_T/phase_space_limit_cycle
 
 1. Navigate to the `src` directory:
