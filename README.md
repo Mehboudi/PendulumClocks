@@ -36,6 +36,7 @@ It is assumed that you have some basic knowledge about MATLAB. In particular, on
 3. Ensure you have MATLAB installed on your system.
 
 ## Running the Simulations
+You always have to simulate some data first (should be done for each folder/subfolder separately. You cannot count on the data of one folder for another folder; they focus on different aspect of the project). This is done by opening the code called run_factorisation_and_resample.m in the respective folder, and then running the first section of the code. This can take a while depending on the parameters, namely the number of iterations (trajectories), number of atoms, total trajectory time etc. For the graphs in the paper, this is of the order of a day-week. But for tests you can run it for shorter times (see below).
 ### Single_atom_zero_T/phase_space_limit_cycle
 
 1. Navigate to the `src` directory:
