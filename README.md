@@ -13,7 +13,6 @@ Simulations of the Quantum Optomechanical Pendulum Clock.
 This repository contains MATLAB simulations for the Quantum Optomechanical Pendulum Clock. The simulations are organized into different subfolders, each dealing with specific aspects of the project.
 
 ## Structure
-Provide a brief overview of each subfolder here. For example:
 
 - `Single_atom_zero_T`: Contains the code for simulation of a single atom case. It reproduces figs. 5-8 of the paper.
 - `Single_atom_zero_T/Phase_space_limit_cycle`:  Contains the code for simulation of a single atom case. It focuses on fig. 4 of the paper.
