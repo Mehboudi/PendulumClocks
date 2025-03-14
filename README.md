@@ -36,59 +36,42 @@ It is assumed that you have some basic knowledge about MATLAB. In particular, on
 3. Ensure you have MATLAB installed on your system.
 
 ## Running the Simulations
-You always have to simulate some data first (should be done for each folder/subfolder separately. You cannot count on the data of one folder for another folder; they focus on different aspect of the project). This is done by opening the code called run_factorisation_and_resample.m in the respective folder. You can either run the full code in one go or run it section by section. I explain the section by section style: start by running the first section of the code, which (monte-carlo) simulates the trajectories of the clock and saves them in the same directory. This can take a while depending on the parameters, namely the number of iterations (trajectories), number of atoms, total trajectory time etc. For the graphs in the paper, this is of the order of a day-week. But for tests you can run it for shorter times (see below).
-Then you can move to the next section of the code and press run section, and move forward section by section. These sections, depending on the folder, will load the data and analyze it. They will produce the results as graphs. 
+You always have to simulate some data first (should be done for each folder/subfolder separately. You cannot count on the data of one folder for another folder; they focus on different aspect of the project). This is done by opening the code called run_factorisation_and_resample.m in the respective folder. You can either run the full code in one go or run it section by section. I explain the section by section style: start by running the first section of the code, which (monte-carlo) simulates the trajectories of the clock and saves them in the same directory. This can take a while depending on the parameters, namely the number of iterations (trajectories), number of atoms, total trajectory time etc; that's why the data is saved automatically so that if you close matlab, you won't lose the effort. For the graphs in the paper, this is of the order of a day-week. But for tests you can run it for shorter times (see below).
+Then you can move to the next section of the code and run the section, and move forward section by section. These sections, depending on the folder, will load the data that you generated before and analyze it. They will produce the results as graphs. 
 If you want to run the code again tomorrow, you don't have to run the first section again, as your data is already saved. Just move on to the analysis sections. 
-### Single_atom_zero_T/phase_space_limit_cycle
 
-1. Navigate to the `src` directory:
-    ```sh
-    cd src
-    ```
-2. Run the main simulation script:
-    ```matlab
-    main_simulation.m
-    ```
+Most data analysis and figures will be produced within the subsequent sections of the code run_factorisation_and_resample.m. However, not all.
+
+Assuming that you have already run the first section of run_factorisation_and_resample.m in the folder that you are interested in:
+If you want to get the autocorrelation of the ticks (Fig. 7), run run_autocorrelations.m in the phase_space_limit_cycle folder.
+If you want the tick statistics histograms for various values of temperature (fig. 9), run run_histogram_overlay.m inside the single_atom_Thermodynamics.
+If you want the ick statistics histograms and detector current for various values of M (middle and bottom panels of Fig. 10), run run_histogram_overlay.m inside the Multiple_atoms.
 
 ## Editing Parameters
-Guide users on where and how to edit parameters. For example:
 
-1. Open the `config.m` file in the `src` directory.
-2. Edit the parameters as needed. For example:
-    ```matlab
-    parameter1 = 10;
-    parameter2 = 5;
-    ```
+### run_factorisation_and_resample.m
 
-## Contributing
-Explain how others can contribute to the project. For example:
+In this code you can edit some of the system parameters, namely temperatures of the cold/hot baths. But the main editable oparameters are imax iMmax and iTmax (depending on the folder) which decide how many times you simulate a trajectory with the same parameters (imax), or for how many different temperatures (iTmax) or for how many atoms (from 1 to iMmax). 
 
-1. Fork the repository.
-2. Create a new branch for your changes.
-3. Submit a pull request.
+This code, first simulates the dynamics without unraveling (i.e., unconditional evolution). Then it simulates the unravelled dynamics (conditional) which is stochastic. The parameter ur=0 means no unravelling, ur=1 means unravelling. 
+
+### factorisation.m
+
+This code is always called from other codes, not directly.
+You can edit main system parameters here. These are subtle, changing the default values may lead to a situation with no limit cycle. 
+
+Most important parameter is tmax. It's value is determined in an if clause, either depending on ur=0 or ur=1. For having a good statistics and convergence of the results tmax for ur==1 is better to be thousands of periods of the mechanical oscillator. However, even with 100 periods you can see some meaningful results. 
+
+### Detector_Filter_saturation
+
+This code is also called from other codes, you don't have to open it. However, you can in principle modify some of the parameters, including the thrshhold for deciding when a tick happens (I^*); that would be threshholddown.
+The parameter n should be an integer above 3. The bigger, the slower the code. But the result doesn't change. It only makes sense to increase it if you want to have a smoother code for the detector current.
+
+### Allan and Allan_from_scratch and size_resample
+
+These code is also called from other codes.
+You don't need to touch these, there are really no parameters to modify
+
 
 ## License
 State the license under which the project is distributed.
-
-
-
-
-
-
-# Pendulom_clocks
-This code accompanies our draft entitled "". 
-It characterises the performance of a pendulum clock. Namely, it simulates its evolution (i) conditional and (ii) unconditional, under the factorisation assumption. In the conditional case, this is a monte-carlo simulations. 
-The codes can illustrate the phase-space evolution of the mechanical oscillator, the populations of the atome, or the number operator of the cavity. All in both cases (i) and (ii). For (i) we also can depict the tick times, and its statistics (histogram). We will calculate the accuracy, and the Allan Variance. We then use a filter that represents the death time of the detectors. Using this filter, our statistics can improve.
-
-# How to run
-You can run the code from run_factorisation_and_resample.m in this code, imax decides how many trajectories you simulate.
-The code Factorisation.mlx contains the core of the simulation. Set the parameter values, including the couplings etc, and the time-length of the evolution here. The parameter dt, cannot be too big, the simulations may break down.
-The data that comes out of Factorisation is too big. size_resample shrinks the size. Good for saving and data analysis. The code also saves the relevant information for each trajectory (after resizing).
-
-To get the data analysis (clock performance) one can run the remaining parts of run_factorisation_and_resample.m namely, using a detector, or not using a detector. If you run the full code from the command line, these will be included automatically.
-
-# Conditional or unconditional? 
-In Factorisation.mlx set ur=1 if you want to unravel (conditional evolution). set ur=0 if not.
-
-# If you want to see the dynamics
-The code run_factorisation_and_resample.m only depicts the clock performance. You cannot see the dynamics of different observables. For that, you can manually plot them (also, some codes are commented within the run_factorisation_and_resample.m code commented as load and analyse, check there too).
