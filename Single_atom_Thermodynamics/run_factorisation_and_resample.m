@@ -27,6 +27,7 @@ iTmax=length(n_c_vec);
 figure
 for iT=1:iTmax
     n_c=n_c_vec(1,iT);
+    T_c=w_cold/(log((n_c+1)/n_c));
     sub_folder_name=['n_c',num2str(iT)];
     mkdir(sub_folder_name)
     for ur=0:1

@@ -16,13 +16,18 @@ g_h=1*w_m;
 g_c=100*w_m;
 %n_h=10;This is decided from the other code
 %n_c=0;%This is decided from the other code
-n_opt=n_c;
-n_m=n_c;
+T_opt=T_c;
+n_opt=1./(exp(w_cav/T_opt)-1);
+%I define the mechanical occupation number after rescaling the w_m
+%properly. But note that w_m does not enter our equations of motion!
 g_m=0.01*w_m;
 %%%%%%%
 %%AFTER SETTING ALL INITIAL PARAMETERS, I CHANGE w_m to what I want
 r_alpha=.9;
 w_m=r_alpha*w_m;
+%%%The occupation (it will not affect the caluclations, just for completeness)
+T_m=T_c;
+n_m=1./(exp(w_m/T_m)-1);
 %%%%%%%
 dt=1e-5;Dt=dt;
 %%

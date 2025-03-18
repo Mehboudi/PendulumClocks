@@ -2,20 +2,23 @@
 %% Simulate trajectories.
 % % If you have done it already, comment for further analysis
 clear all
+iM=1;
 imin=1;
 imax=1;%The number of simulations (After reaching the steady state)
 w_cold=120;w_hot=240;
 %T_c=120;
 %n_c=1./(exp(w_c./T_c)-1);
 n_h=10;T_h=w_hot/(log((n_h+1)/n_h));
-n_c=0;
+n_c=0;T_c=0;
 sub_folder_name='Data';
 mkdir(sub_folder_name)
 for ur=0:1
     if ur==0
+        i1=1;
         Factorisation;
         myVars = {'x_m_vec','p_m_vec','w_hot','w_cold','w_cav','n_h','n_c','w_m','f','g'...
-            ,'k','g_h','g_c','g_m','dt'};
+            ,'k','g_h','g_c','g_m','dt',...
+            "p1","p2","p3","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m"};
         save([sub_folder_name,'/unconditional'],myVars{:});
         % plot(x_m_vec,1i*p_m_vec,'LineWidth',2);
         % xlim([-40 40])

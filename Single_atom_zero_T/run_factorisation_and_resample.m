@@ -1,16 +1,19 @@
 %% Simulate trajectories.
 % % If you have done it already, comment for further analysis below
+clear all
+iM=1;
 imin=1;
 imax=10;%The number of simulations (After reaching the steady state)
 w_cold=120;w_hot=240;
 %T_c=120;
 %n_c=1./(exp(w_c./T_c)-1);
 n_h=10;T_h=w_hot/(log((n_h+1)/n_h));
-n_c=0;
+n_c=0;T_c=0;
 sub_folder_name='Data';
 mkdir(sub_folder_name)
 for ur=0:1
     if ur==0
+        i1=1;%don't touch, this is called in Factorisation; 
         Factorisation;
         myVars = {"p1","p2","p3","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m", ...
             'x_m_vec','p_m_vec','p1_vec','p2_vec','na_vec','t_vec_i1','w_hot','w_cold','w_cav','n_h','n_c','w_m','f','g'...
