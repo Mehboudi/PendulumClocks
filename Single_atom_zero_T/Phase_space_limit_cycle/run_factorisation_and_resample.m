@@ -67,7 +67,7 @@ myVars = {'x_m_vec','p_m_vec'};
 load([sub_folder_name,'/conditional_traj1'],myVars{:})
 %subplot(1,6,iM);
 histogram2(-[30,-30,x_m_vec/sqrt(2),-30,30],...
-    [30,-30,1i*p_m_vec/sqrt(2),030,30],[100,100],...
+    [30,-30,1i*p_m_vec/sqrt(2),-30,30],[100,100],...
     'DisplayStyle', 'tile', 'ShowEmptyBins', 'on','EdgeColor','None')%I add the new points so that the axis limits are equal everywhere
 %histogram2(-x_m_vec/sqrt(2),...
 %1i*p_m_vec/sqrt(2),...
@@ -90,6 +90,15 @@ sub_folder_name='Data';
 myVars = {'x_m_vec','p_m_vec'};
 load([sub_folder_name,'/unconditional'],myVars{:})
 %subplot(1,6,iM);
+%%%
+%If the vectors include too much info from the transient regiem, remove
+%those data points. Include enough data that you see at least one cycle
+%(i.e., you see a closed loop). You should decide the value depending on
+%tmax and dt in the code that generated the data
+sx_m_vec=length(x_m_vec);
+x_m_vec=x_m_vec(1,floor(.95*sx_m_vec):end);
+p_m_vec=p_m_vec(1,floor(.95*sx_m_vec):end);
+%%%
 plot(-x_m_vec/sqrt(2),1i*p_m_vec/sqrt(2),'LineWidth',2)
 %xlim(xLimits{1,iM});
 %ylim(yLimits{1,iM});
