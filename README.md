@@ -93,13 +93,13 @@ Practical workflow:
 
 After you have generated the trajectory data by running the **first section** of `run_factorisation_and_resample.m` in the relevant folder:
 
-- **Autocorrelation of ticks (Fig. 7):**  
+- **Autocorrelation of ticks (Fig. 14):**  
   Run `run_autocorrelations.m` in `Single_atom_zero_T/Phase_space_limit_cycle/`.
 
-- **Tick-statistics histograms vs temperature (Fig. 9):**  
+- **Tick-statistics histograms vs temperature (Fig. 8):**  
   Run `run_histogram_overlay.m` inside `Single_atom_Thermodynamics/`.
 
-- **Tick-statistics histograms and detector current vs atom number M (Fig. 10 middle/bottom):**  
+- **Tick-statistics histograms and detector current vs atom number M (Fig. 11 middle/bottom):**  
   Run `run_histogram_overlay.m` inside `Multiple_atoms/`.
 
 (Other figures are often produced by later sections of `run_factorisation_and_resample.m`, but not all.)
