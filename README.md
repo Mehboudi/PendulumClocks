@@ -14,10 +14,12 @@ This repository contains MATLAB simulations for the Quantum Optomechanical Pendu
 
 ## Structure
 
-- `Single_atom_zero_T`: Contains the code for simulation of a single atom case. It reproduces figs. 5-8 of the paper.
+- `Single_atom_zero_T`: Contains the code for simulation of a single atom case. It reproduces figs. 5-7 of the paper.
 - `Single_atom_zero_T/Phase_space_limit_cycle`:  Contains the code for simulation of a single atom case. It focuses on fig. 4 of the paper.
-- - `Single_atom_Thermodynamics`: Contains the code for simulation of a single atom case at finite temperatures. It reproduces figs. 9 and the heat currents in the appendix.
-- `Multiple_atoms`: Focuses on the multi-atom scenario, produces Figs 9-11 of the paper.
+- `Single_atom_Thermodynamics`: Contains the code for simulation of a single atom case at finite temperatures. It reproduces figs. 8-9 and the heat currents in the appendix.
+- `Two_atoms_zero_T`: Contains the code for simulation of two atoms case. It reproduces lower panel of figs. 10 of the paper.
+- `Two_atoms_zero_T`: Contains the code for simulation of two atoms case at finite T. It is used to reproduce the star-point in Fig. 12 of the paper.
+- `Multiple_atoms`: Focuses on the multi-atom scenario, produces Figs 11-12 of the paper.
 
 ## Setup
 It is assumed that you have some basic knowledge about MATLAB. On your first attempt, you may encounter errors such as missing files or unknown variables, which you should troubleshoot accordingly. But in principle everything should work fine.
