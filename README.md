@@ -75,7 +75,7 @@ Notes:
 Pick the folder corresponding to the figure/physics scenario you want to reproduce (e.g. `Single_atom_zero_T/`, `Multiple_atoms/`, etc.), and set MATLAB’s **Current Folder** to that directory.
 
 ### 2) Generate trajectories and saved data (required per folder)
-Open and run:
+Open and run [the first section of]:
 - `run_factorisation_and_resample.m` (in that folder)
 
 This script is typically organized in sections:
