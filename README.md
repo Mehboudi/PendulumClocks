@@ -35,19 +35,19 @@ Each folder (and in some cases subfolders) is designed to be runnable largely in
 The main folders are:
 
 - `Single_atom_zero_T/`  
-  Single-atom simulations at zero temperature. Reproduces Figs. 5–8 of the paper.
+  Single-atom simulations at zero temperature. Reproduces Figs. 5–7 of the paper.
   - `Single_atom_zero_T/Phase_space_limit_cycle/`  
     Focuses on Fig. 4 (phase-space limit cycle) and related analysis.
 
 - `Single_atom_Thermodynamics/`  
-  Single-atom simulations at finite temperatures. Reproduces Fig. 9 and heat currents in the appendix.
+  Single-atom simulations at finite temperatures. Reproduces Fig. 8, the stared data in Fig. 12, and heat currents in the appendix.
+  
+- `Two_atoms_zero_T/` 2-atoms simulations at zero temperature. Reproduces Fig. 10 of the paper.
+- `Two_atoms_Thermodynamics/` 2-atoms simulations at finite temperature. Reproduces a stared data in Fig.12 
 
 - `Multiple_atoms/`  
-  Multi-atom scenario; produces Figs. 9–11 of the paper.
+  Multi-atom scenario; produces Figs. 11–12 of the paper.
 
-Additional folders visible in the repository:
-- `Two_atoms_zero_T/`
-- `Two_atoms_Thermodynamics/`
 
 Within each scenario folder you will typically find:
 - `run_factorisation_and_resample.m` (main “driver” script for that folder)
