@@ -13,9 +13,9 @@ w_m = 1;                 % Mechanical frequency
 f = 20 * w_m;            % Driving strength
 g = 30 * w_m;            % Coupling
 % Interaction terms
-% epsilon_1 = 0 * max(f,g);
-% epsilon_2 = 4 * max(f,g);
-% epsilon_3 = 8 * max(f,g);
+epsilon_1 = 0 * max(f,g);
+epsilon_2 = 4 * max(f,g);
+epsilon_3 = 8 * max(f,g);
 Delta = 0 * max(f,g);
 w_cav = w_hot - w_cold + Delta;
 k = 10 * w_m;
@@ -50,7 +50,7 @@ if ur == 0
     Np = 100;
 else
     tmax = 50;           % Time for conditional (Reduced by 10x)
-    Np = 100;
+    Np = 1050;
 end
 
 % --- 2. Prepare Interface for Julia ---
@@ -122,6 +122,9 @@ if ur == 0
     p1_vec = raw_results.p1;
     p2_vec = raw_results.p2;
     p3_vec = raw_results.p3;
+    p1_2_vec = raw_results.p1_2;
+    p2_2_vec = raw_results.p2_2;
+    p3_2_vec = raw_results.p3_2;
     na_vec = raw_results.na;
     re_ad_s12_vec = raw_results.re_ad_s12;
     im_ad_s12_vec = raw_results.im_ad_s12;
@@ -132,6 +135,9 @@ if ur == 0
     p1 = p1_vec(end);
     p2 = p2_vec(end);
     p3 = p3_vec(end);
+    p1_2 = p1_2_vec(end);
+    p2_2 = p2_2_vec(end);
+    p3_2 = p3_2_vec(end);
     na = na_vec(end);
     re_ad_s12 = re_ad_s12_vec(end);
     im_ad_s12 = im_ad_s12_vec(end);
@@ -154,6 +160,9 @@ if ur == 0
     if size(p1_vec, 1) > 1, p1_vec = p1_vec'; end
     if size(p2_vec, 1) > 1, p2_vec = p2_vec'; end
     if size(p3_vec, 1) > 1, p3_vec = p3_vec'; end
+    if size(p1_2_vec, 1) > 1, p1_2_vec = p1_2_vec'; end
+    if size(p2_2_vec, 1) > 1, p2_2_vec = p2_2_vec'; end
+    if size(p3_2_vec, 1) > 1, p3_2_vec = p3_2_vec'; end
     if size(na_vec, 1) > 1, na_vec = na_vec'; end
     if size(t_vec_i1, 1) > 1, t_vec_i1 = t_vec_i1'; end
     
@@ -165,6 +174,9 @@ else
     p1_vec = raw_results.t_p1_down;
     p2_vec = raw_results.t_p2_down;
     p3_vec = raw_results.t_p3_down;
+    p1_2_vec = raw_results.t_p1_2_down;
+    p2_2_vec = raw_results.t_p2_2_down;
+    p3_2_vec = raw_results.t_p3_2_down;
     na_vec = raw_results.t_na_down;
     re_ad_s12_vec = raw_results.t_re_ad_s12_down;
     im_ad_s12_vec = raw_results.t_im_ad_s12_down;
@@ -179,7 +191,12 @@ else
     J_h = raw_results.J_h;
     J_m = raw_results.J_m;
     J_cold = raw_results.J_cold;
-    J_cav = raw_results.J_cav;
+    J_cav = raw_results.J_cave_ad_s12_down;
+    im_ad_s12_vec = raw_results.t_im_ad_s12_down;
+    
+    % Jumps
+    t_dN = raw_results.t_dN;
+    tvec_dN1 = raw_results.tvec_dN1;
     
     % Ensure orientation (MATLAB often prefers rows for these legacy scripts)
     if size(tvec_down, 1) > 1, tvec_down = tvec_down'; end

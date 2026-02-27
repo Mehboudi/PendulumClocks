@@ -13,9 +13,9 @@ w_m = 1;                 % Mechanical frequency
 f = 20 * w_m;            % Driving strength
 g = 30 * w_m;            % Coupling
 % Interaction terms
-% epsilon_1 = 0 * max(f,g);
-% epsilon_2 = 4 * max(f,g);
-% epsilon_3 = 8 * max(f,g);
+epsilon_1 = 0 * max(f,g);
+epsilon_2 = 4 * max(f,g);
+epsilon_3 = 8 * max(f,g);
 Delta = 0 * max(f,g);
 w_cav = w_hot - w_cold + Delta;
 k = 10 * w_m;
@@ -50,7 +50,7 @@ if ur == 0
     Np = 100;
 else
     tmax = 50;           % Time for conditional (Reduced by 10x)
-    Np = 100;
+    Np = 1050;
 end
 
 % --- 2. Prepare Interface for Julia ---
@@ -69,18 +69,11 @@ julia_params.n_c = n_c;
 julia_params.g_m = g_m;
 julia_params.dt = dt;
 julia_params.tmax = tmax;
-julia_params.w_hot = w_hot;
-julia_params.w_cold = w_cold;
 
 % File names for communication
 param_file = 'params_interop.mat';
 result_file = 'results_interop.mat';
-% Each temperature gets its own params_ur0 file to avoid race conditions
-if exist('sub_folder_name', 'var')
-    params_ur0_file = fullfile(sub_folder_name, 'params_ur0.mat');
-else
-    params_ur0_file = fullfile('Data', 'params_ur0.mat');
-end
+params_ur0_file = fullfile('Data', 'params_ur0.mat');
 
 % Save parameters to .mat file (for both ur==0 and ur==1)
 save(param_file, '-struct', 'julia_params');
@@ -112,7 +105,6 @@ raw_results = load(result_file);
 if ur == 0
     % Save params_ur0 permanently for future ur=1 runs
     params_ur0 = raw_results.params_ur0;
-    % No need to create Data directory - save in subfolder
     save(params_ur0_file, 'params_ur0');
     fprintf('Saved initial conditions to %s for future ur=1 runs\n', params_ur0_file);
     
@@ -122,6 +114,9 @@ if ur == 0
     p1_vec = raw_results.p1;
     p2_vec = raw_results.p2;
     p3_vec = raw_results.p3;
+    p1_2_vec = raw_results.p1_2;
+    p2_2_vec = raw_results.p2_2;
+    p3_2_vec = raw_results.p3_2;
     na_vec = raw_results.na;
     re_ad_s12_vec = raw_results.re_ad_s12;
     im_ad_s12_vec = raw_results.im_ad_s12;
@@ -132,6 +127,9 @@ if ur == 0
     p1 = p1_vec(end);
     p2 = p2_vec(end);
     p3 = p3_vec(end);
+    p1_2 = p1_2_vec(end);
+    p2_2 = p2_2_vec(end);
+    p3_2 = p3_2_vec(end);
     na = na_vec(end);
     re_ad_s12 = re_ad_s12_vec(end);
     im_ad_s12 = im_ad_s12_vec(end);
@@ -142,18 +140,15 @@ if ur == 0
     % Get the full density matrix for permanent storage
     rho_final = params_ur0.rho0;
     
-    % Extract heat currents from Julia results
-    J_h = raw_results.J_h;
-    J_m = raw_results.J_m;
-    J_cold = raw_results.J_cold;
-    J_cav = raw_results.J_cav;
-    
     % Ensure row orientation
     if size(x_m_vec, 1) > 1, x_m_vec = x_m_vec'; end
     if size(p_m_vec, 1) > 1, p_m_vec = p_m_vec'; end
     if size(p1_vec, 1) > 1, p1_vec = p1_vec'; end
     if size(p2_vec, 1) > 1, p2_vec = p2_vec'; end
     if size(p3_vec, 1) > 1, p3_vec = p3_vec'; end
+    if size(p1_2_vec, 1) > 1, p1_2_vec = p1_2_vec'; end
+    if size(p2_2_vec, 1) > 1, p2_2_vec = p2_2_vec'; end
+    if size(p3_2_vec, 1) > 1, p3_2_vec = p3_2_vec'; end
     if size(na_vec, 1) > 1, na_vec = na_vec'; end
     if size(t_vec_i1, 1) > 1, t_vec_i1 = t_vec_i1'; end
     
@@ -165,6 +160,9 @@ else
     p1_vec = raw_results.t_p1_down;
     p2_vec = raw_results.t_p2_down;
     p3_vec = raw_results.t_p3_down;
+    p1_2_vec = raw_results.t_p1_2_down;
+    p2_2_vec = raw_results.t_p2_2_down;
+    p3_2_vec = raw_results.t_p3_2_down;
     na_vec = raw_results.t_na_down;
     re_ad_s12_vec = raw_results.t_re_ad_s12_down;
     im_ad_s12_vec = raw_results.t_im_ad_s12_down;
@@ -172,14 +170,6 @@ else
     % Jumps
     t_dN = raw_results.t_dN;
     tvec_dN1 = raw_results.tvec_dN1;
-    
-    % Extract heat quantities and w_m from Julia results
-    Q_h = raw_results.Q_h;
-    Q_h_f = raw_results.Q_h_f;
-    J_h = raw_results.J_h;
-    J_m = raw_results.J_m;
-    J_cold = raw_results.J_cold;
-    J_cav = raw_results.J_cav;
     
     % Ensure orientation (MATLAB often prefers rows for these legacy scripts)
     if size(tvec_down, 1) > 1, tvec_down = tvec_down'; end

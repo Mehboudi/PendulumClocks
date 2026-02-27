@@ -1,214 +1,174 @@
-%% important: set ur=1 if you want to unravel (conditional evolution). set ur=0 if not.
-%
-w_m=1;%Don't touch! If you want  adifferent value, chnage it at the end of this section.
-% Else everything else will be rescaled too!
-f=20*w_m;%maybe reduce f to have the jumps 3-->2 more regularly?
-g=30*w_m;
-%%%To have local ME valid, we need interaction terms such as f and g much
-%%%smaller than the other gaps
-epsilon_1=0*max(f,g);
-epsilon_2=4*max(f,g);
-epsilon_3=8*max(f,g);
-Delta=0*max(f,g);
-w_cav=w_hot-w_cold+Delta;
-k=10*w_m;
-g_h=1*w_m;
-g_c=100*w_m;
-%n_h=10;This is decided from the other code
-%n_c=0;%This is decided from the other code
-T_opt=T_c;
-n_opt=1./(exp(w_cav/T_opt)-1);
-%I define the mechanical occupation number after rescaling the w_m
-%properly. But note that w_m does not enter our equations of motion!
-g_m=0.01*w_m;
-%%%%%%%
-%%AFTER SETTING ALL INITIAL PARAMETERS, I CHANGE w_m to what I want
-r_alpha=.9;
-w_m=r_alpha*w_m;
-%%%The occupation (it will not affect the caluclations, just for completeness)
-T_m=T_c;
-n_m=1./(exp(w_m/T_m)-1);
-%%%%%%%
-dt=1e-5;Dt=dt;
-%%
-% The initial conditions
-% We first run the code with ur=0, i.e., no unraveling, such that we reach
-% a steady state. Then, we use that as initial point for other [stable] simulations.
-if ur==0
-    % Let's take everything to be uncorrelated
-    [p1,p2,p3]=deal(1,0,0);  %The atom in the GS
-    na=0;                   %<a'a> Cavity is empty
-    re_ad_s12=0;          %Re<a'sigma_12>
-    im_ad_s12=0;           %Im<a'sigma_12>
-    na_p3=0;             %<a'a p_3>
-    x_m=0;                 %<b+b'>
-    p_m=0*1i*sqrt(10*w_m);   %<b-b'>, This should be always imaginary, careful!!
+%% Factorisation.m - MATLAB Wrapper for Julia Simulation
+% This script replaces the old simulation loop with a call to the robust Julia engine.
+% It maintains the parameter definitions expected by the parent script.
+
+% --- CONFIGURATION: JULIA PATH ---
+% Set the specific path to the Julia executable found via 'which julia'
+julia_path = '/opt/homebrew/bin/julia'; 
+% ---------------------------------
+
+% --- 1. Parameter Definitions (Preserved from original) ---
+% These define the physics of the clock.
+w_m = 1;                 % Mechanical frequency
+f = 20 * w_m;            % Driving strength
+g = 30 * w_m;            % Coupling
+% Interaction terms
+epsilon_1 = 0 * max(f,g);
+epsilon_2 = 4 * max(f,g);
+epsilon_3 = 8 * max(f,g);
+Delta = 0 * max(f,g);
+w_cav = w_hot - w_cold + Delta;
+k = 10 * w_m;
+g_h = 1 * w_m;
+g_c = 100 * w_m;
+
+% Thermals are set by parent script, but we ensure defaults if testing standalone
+if ~exist('n_h', 'var'), n_h = 10; end
+if ~exist('n_c', 'var'), n_c = 0; end
+
+T_opt = T_c;
+if T_opt == 0
+    n_opt = 0;
 else
-    myVars = {"p1","p2","p3","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m"};
-    load([sub_folder_name,'/unconditional'],myVars{:})
+    n_opt = 1./(exp(w_cav/T_opt)-1);
 end
-%%
-%%% The jump probability to the cold bath
-% This is p_k=dt*tr[L_k*rho*L_k'], with L_k = sqrt(g_c*(n_c+1))sigma_23
-p_j2c=@(dt,p3) dt*g_c*(n_c+1)*p3;
-if ur==0
-    %   This will be run only once, in order to reach a steady state
-    tmax=1e2/w_m;
+
+g_m = 0.01 * w_m;        % Mechanical damping
+
+% Rescaling
+r_alpha = .9;
+w_m = r_alpha * w_m;
+
+% Time settings
+dt = 1e-4;               % Time step
+if ~exist('ur', 'var')
+    ur = 0; 
+end
+
+if ur == 0
+    tmax = 10;           % Time for unconditional (Reduced by 10x)
+    Np = 4;
 else
-    %   Then this will be repeated many times to get a good statistics!
-    tmax=1e3/w_m;
+    tmax = 50;           % Time for conditional (Reduced by 10x)
+    Np = 1050;
 end
-stvec=floor(tmax/dt);
-% x_m_vec=zeros(1,floor(10*w_m/dt));%This is to check if we have a limit cycle
-% p_m_vec=zeros(1,floor(10*w_m/dt));%This is to check if we have a limit cycle
-%%%I'll only save the data from a single trajectory (in i1==1). It should be
-%%%larger in data size. Again, only in the unravelled case.
-if or(and(ur==1,i1==1),ur==0)
-    p1_vec=zeros(1,floor(20*w_m/dt));
-    p2_vec=zeros(1,floor(20*w_m/dt));
-    na_vec=zeros(1,floor(20*w_m/dt));
-    x_m_vec=zeros(1,floor(20*w_m/dt));%This is to check if we have a limit cycle
-    p_m_vec=zeros(1,floor(20*w_m/dt));%This is to check if we have a limit cycle
-    t_vec_i1=zeros(1,floor(20*w_m/dt));
-elseif and(ur==1,i1~=1)
-    p1_vec=0;
-    p2_vec=0;
-    na_vec=0; 
-    x_m_vec=0;
-    p_m_vec=0;
-    t_vec_i1=0;
+
+% --- 2. Prepare Interface for Julia ---
+
+% Structure parameters for export
+julia_params.ur = ur;
+julia_params.Np = Np;
+julia_params.w_m = w_m;
+julia_params.f = f;
+julia_params.g = g;
+julia_params.k = k;
+julia_params.g_h = g_h;
+julia_params.g_c = g_c;
+julia_params.n_h = n_h;
+julia_params.n_c = n_c;
+julia_params.g_m = g_m;
+julia_params.dt = dt;
+julia_params.tmax = tmax;
+
+% File names for communication
+param_file = 'params_interop.mat';
+result_file = 'results_interop.mat';
+params_ur0_file = fullfile('Data', 'params_ur0.mat');
+
+% Save parameters to .mat file (for both ur==0 and ur==1)
+save(param_file, '-struct', 'julia_params');
+
+% For ur=1, load steady-state initial conditions from permanent file
+if ur == 1 && exist(params_ur0_file, 'file')
+    copyfile(params_ur0_file, result_file);
+    fprintf('Loaded initial conditions from %s\n', params_ur0_file);
+elseif ur == 1
+    error('Cannot run ur=1: %s not found. Run ur=0 first.', params_ur0_file);
 end
-jump_times=[];
-t_p1_old=p1;
-t_p2_old=p2;
-t_p3_old=p3;
-t_na_old=na;
-t_re_ad_s12_old=re_ad_s12;
-t_im_ad_s12_old=im_ad_s12;
-t_x_m_old=x_m;
-t_p_m_old=p_m;
-%%%NOW to calcuate Q_h, note its defined as dt*w_h*g_h*(p3*(1+n_h) - p1*n_h);
-% (this originally comes from J_h=-Tr[H_0 L_h \rho]). Then we can
-%%%integrate it over time, by adding it up. At the end of the day, we can
-%%%normalise it by total time to get J_h.
-% The easiest way to simulate the conditional dynamics is to discretize time and in each
-% time-step choose a random number between 0 and 1. If the number is
-% smaller than the probability for a jump to occur, then you evolve
-% the quantities with dN=1 and dt=0. If the number is larger than the
-% probability of a jump to occur, then you set dN=0 (and dt~=0). In principle, you
-% can do more advanced stuff by first figuring out when the next jump
-% occurs (drawing from the waiting time distribution) but this might
-% be a bit more involved. If you want to look into this, I would google
-% Gillespie algorithm.
-%ur=1;%if unravel=ur=1 we unravel, else standard Lindbladian, no jumps resolved.
-% This is now decided from the other code!!
-dN=0;
-for itt=2:1:stvec
-    if ur==1
-        if rand<p_j2c(dt,t_p3_old)
-            jump_times=[jump_times,dt*itt];
-            dN=1;
-            Dt=0;
-        else
-            dN=0;
-            Dt=dt;
-        end
-    end
-    %
-    t_na=Dt*( 2*f*t_im_ad_s12_old + k*(n_opt-t_na_old));
-    t_na=t_na+t_na_old;
-    %---
-    %---
-    t_p1 =Dt*( 2*f*t_im_ad_s12_old +g_h*(n_h+1)*t_p3_old ...
-        -g_h*n_h*t_p1_old  ) - t_p1_old *(dN-Dt*g_c*(n_c+1)*t_p3_old )*ur;
-    t_p1 =t_p1 + t_p1_old ;
-    t_p2 =Dt*( -2*f*t_im_ad_s12_old +g_c*(n_c+1)*t_p3_old ...
-        -g_c*n_c*t_p2_old  ) + (1-t_p2_old )*( dN-Dt*g_c*(n_c+1)*t_p3_old  )*ur;
-    t_p2 =t_p2 + t_p2_old ;
-    t_p3 =Dt*( -g_h*(n_h+1)*t_p3_old -g_c*(n_c+1)*t_p3_old +...
-        g_h*n_h*t_p1_old  + g_c*n_c*t_p2_old  ) - ...
-        t_p3_old *( dN-Dt*g_c*(n_c+1)*t_p3_old  )*ur;
-    t_p3 =t_p3 +t_p3_old ;
-    %t_p3 =1-t_p2 -t_p1 ;%Alternatively, Probabilities should sum up to one
-    %--
-    %--
-    [t_p1 ,t_p2 ,t_p3, t_na ]=...
-        pop_regulate(t_p1 ,t_p2 ,t_p3, t_na, dt);
-    % violation=population_test(t_p1 ,t_p2 ,t_p3 );
-    % if violation==1
-    %     [p1v,p2v,p3v,nav,re_ad_s12v,im_ad_s12v,x_mv,p_mv]=deal(t_p1(1,itt-1:itt)...
-    %         ,t_p2(1,itt-1:itt),t_p3(1,itt-1:itt),t_na(1,itt-1:itt)...
-    %         ,t_re_ad_s12(1,itt-1:itt),t_im_ad_s12(1,itt-1:itt),t_x_m(1,itt-1:itt)...
-    %         ,t_p_m(1,itt-1:itt))
-    %     return
-    % end
-    % %--
-    %--
-    t_re_ad_s12 =Dt*( -Delta*t_im_ad_s12_old -.5*(k+g_h*n_h+g_c*n_c)*...
-        t_re_ad_s12_old -g*t_im_ad_s12_old *t_x_m_old ) - ...
-        (dN-Dt*g_c*(n_c+1)*t_p3_old )*ur*t_re_ad_s12_old ;
-    t_re_ad_s12 =t_re_ad_s12 +t_re_ad_s12_old ;
-    %--
-    t_im_ad_s12 =Dt*( Delta*t_re_ad_s12_old -.5*(k+g_h*n_h+g_c*n_c)*...
-        t_im_ad_s12_old +g*t_re_ad_s12_old *t_x_m_old  + ...
-        f*(t_p2_old +t_na_old *(t_p2_old -t_p1_old )) ) - ...
-        (dN-Dt*g_c*(n_c+1)*t_p3_old )*ur*t_im_ad_s12_old ;
-    t_im_ad_s12 =t_im_ad_s12 +t_im_ad_s12_old ;
-    %---
-    %---
-    t_x_m =Dt*(-1i*w_m*t_p_m_old  - g_m/2*t_x_m_old );
-    t_x_m =t_x_m +t_x_m_old ;
-    %--
-    t_p_m =Dt*(-1i*w_m*t_x_m_old -2i*g*t_na_old -g_m/2*t_p_m_old );
-    t_p_m =t_p_m +t_p_m_old ;
-    %--
-    %%%This will be used for the next round
-    t_p1_old=t_p1;
-    t_p2_old=t_p2;
-    t_p3_old=t_p3;
-    t_na_old=t_na;
-    t_re_ad_s12_old=t_re_ad_s12;
-    t_im_ad_s12_old=t_im_ad_s12;
-    t_x_m_old=t_x_m;
-    t_p_m_old=t_p_m;
-    if or(ur==0,and(ur==1,i1==1))
-        %%%Do we actually have a limit cycle?
-        if itt>stvec-floor(20*w_m/dt)
-            x_m_vec(1,itt+floor(20*w_m/dt)-stvec)=t_x_m;
-            p_m_vec(1,itt+floor(20*w_m/dt)-stvec)=t_p_m;
-            p1_vec(1,itt+floor(20*w_m/dt)-stvec)=t_p1;
-            p2_vec(1,itt+floor(20*w_m/dt)-stvec)=t_p2;
-            na_vec(1,itt+floor(20*w_m/dt)-stvec)=t_na;
-            t_vec_i1(1,itt+floor(20*w_m/dt)-stvec)=itt*dt;
-        end
-    end
+
+% --- 3. Call Julia Simulation ---
+% We use 'system' to call the Julia script.
+% Use the configured julia_path
+% ADDED '-echo' to ensure progress messages are printed to MATLAB Command Window
+cmd = sprintf('%s single_atom_simulation.jl "%s" "%s"', julia_path, param_file, result_file);
+[status, cmdout] = system(cmd, '-echo');
+
+if status ~= 0
+    disp('--- Julia Output (Error) ---');
+    disp(cmdout);
+    error('Julia simulation failed. See output above. \nHint: If package installation fails repeatedly, try running this in your terminal:\n/opt/homebrew/bin/julia -e "using Pkg; Pkg.add([\"MAT\", \"DifferentialEquations\", \"QuantumOptics\"])"');
 end
-%%% RESET the initial conditions to the steady ones for next rounds (unravelling)
-if ur==0
-    p1=t_p1;
-    p2=t_p2;
-    p3=t_p3;
-    na=t_na;
-    re_ad_s12=t_re_ad_s12;
-    im_ad_s12=t_im_ad_s12;
-    x_m=t_x_m;
-    p_m=t_p_m;
+
+% --- 4. Load and Map Results ---
+raw_results = load(result_file);
+
+if ur == 0
+    % Save params_ur0 permanently for future ur=1 runs
+    params_ur0 = raw_results.params_ur0;
+    save(params_ur0_file, 'params_ur0');
+    fprintf('Saved initial conditions to %s for future ur=1 runs\n', params_ur0_file);
+    
+    % Unconditional Case: Map results to expected variables
+    x_m_vec = raw_results.x_m_vec;
+    p_m_vec = raw_results.p_m_vec;
+    p1_vec = raw_results.p1;
+    p2_vec = raw_results.p2;
+    p3_vec = raw_results.p3;
+    na_vec = raw_results.na;
+    re_ad_s12_vec = raw_results.re_ad_s12;
+    im_ad_s12_vec = raw_results.im_ad_s12;
+    na_p3_vec = raw_results.na_p3;
+    t_vec_i1 = raw_results.tvec;
+    
+    % Extract final scalar values
+    p1 = p1_vec(end);
+    p2 = p2_vec(end);
+    p3 = p3_vec(end);
+    na = na_vec(end);
+    re_ad_s12 = re_ad_s12_vec(end);
+    im_ad_s12 = im_ad_s12_vec(end);
+    na_p3 = na_p3_vec(end);
+    x_m = x_m_vec(end);
+    p_m = p_m_vec(end);
+    
+    % Get the full density matrix for permanent storage
+    rho_final = params_ur0.rho0;
+    
+    % Ensure row orientation
+    if size(x_m_vec, 1) > 1, x_m_vec = x_m_vec'; end
+    if size(p_m_vec, 1) > 1, p_m_vec = p_m_vec'; end
+    if size(p1_vec, 1) > 1, p1_vec = p1_vec'; end
+    if size(p2_vec, 1) > 1, p2_vec = p2_vec'; end
+    if size(p3_vec, 1) > 1, p3_vec = p3_vec'; end
+    if size(na_vec, 1) > 1, na_vec = na_vec'; end
+    if size(t_vec_i1, 1) > 1, t_vec_i1 = t_vec_i1'; end
+    
+else
+    % Conditional Case: Expecting downsampled time traces
+    tvec_down = raw_results.tvec_down;
+    x_m_vec = raw_results.t_x_m_down;
+    p_m_vec = raw_results.t_p_m_down;
+    p1_vec = raw_results.t_p1_down;
+    p2_vec = raw_results.t_p2_down;
+    p3_vec = raw_results.t_p3_down;
+    na_vec = raw_results.t_na_down;
+    re_ad_s12_vec = raw_results.t_re_ad_s12_down;
+    im_ad_s12_vec = raw_results.t_im_ad_s12_down;
+    
+    % Jumps
+    t_dN = raw_results.t_dN;
+    tvec_dN1 = raw_results.tvec_dN1;
+    
+    % Ensure orientation (MATLAB often prefers rows for these legacy scripts)
+    if size(tvec_down, 1) > 1, tvec_down = tvec_down'; end
+    if size(tvec_dN1, 1) > 1, tvec_dN1 = tvec_dN1'; end
+    
+    % ALIAS: The parent script expects 'jump_times' to exist
+    jump_times = tvec_dN1;
 end
-%%
-function     [tp1,tp2,tp3,tna]=pop_regulate(t_p1,t_p2,t_p3,t_na,dt)
-tp1=t_p1;tp2=t_p2;tp3=t_p3;tna=t_na;
-if (t_p1<0) %&& (t_p1>-100*dt)
-    tp1=0;
-end
-if (t_p2<0) %&& (t_p2>-100*dt)
-    tp2=0;
-end
-if (t_p3<0) %&& (t_p3>-100*dt)
-    tp3=0;
-end
-if (t_na<0) %&& (t_na>-100*dt)
-    tna=0;
-end
-s=sum([tp1,tp2,tp3]);
-[tp1,tp2,tp3]=deal(tp1/s,tp2/s,tp3/s);
-end
+
+% Cleanup temporary files (Optional: keep them for debugging if needed)
+%delete(param_file);
+%delete(result_file);
+
+fprintf('Julia simulation (ur=%d) completed successfully.\n', ur);

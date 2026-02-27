@@ -3,8 +3,11 @@
 % %   Tick stats; No filter
 % %-----------------
 imin=1;
-%imax=1;
-%iTmax=length(n_c_vec);%iTmax=20;
+imax=4;
+%iTmax=length(n_c_vec);
+iTmax=30;
+iM=1;
+plot_filter=0;
 N=zeros(1,iTmax);
 mu_=zeros(1,iTmax);
 Var_=zeros(1,iTmax);
@@ -14,9 +17,9 @@ Jcavmat=zeros(iTmax,imax);
 click_num=zeros(iTmax,imax);
 figure
 scount=0;%counts sub-plot number for histograms.
-for iT=[1,9,14]
+for iT=[1,20,27,30]
     scount=scount+1;
-    subplot(1,3,scount)
+    subplot(1,4,scount)
     hold on
     for det_filt=0:1
         sub_folder_name=['n_c',num2str(iT)];
@@ -73,7 +76,7 @@ for iT=[1,9,14]
         box on
         set(gca,'linewidth',1)  
         xlim([0,2.2])
-        ylim([0,.06])
+        ylim([0,.1])
         %ytickformat('%.1e'); % Set y-axis to scientific notation
         %legend('no filter','filter')
     end

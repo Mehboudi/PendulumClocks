@@ -3,7 +3,7 @@
 clear all
 iM=1;
 imin=1;
-imax=10;%The number of simulations (After reaching the steady state)
+imax=1;%The number of simulations (After reaching the steady state)
 w_cold=120;w_hot=240;
 %T_c=120;
 %n_c=1./(exp(w_c./T_c)-1);
@@ -11,12 +11,12 @@ n_h=10;T_h=w_hot/(log((n_h+1)/n_h));
 n_c=0;T_c=0;
 sub_folder_name='Data';
 mkdir(sub_folder_name)
-for ur=0:0
+for ur=0:1
     if ur==0
         i1=1;%don't touch, this is called in Factorisation; 
         Factorisation;
-        myVars = {"p1","p2","p3","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m", ...
-            'x_m_vec','p_m_vec','p1_vec','p2_vec','na_vec','t_vec_i1','w_hot','w_cold','w_cav','n_h','n_c','w_m','f','g'...
+        myVars = {"p1","p2","p3","p1_2","p2_2","p3_2","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m", ...
+            'x_m_vec','p_m_vec','p1_vec','p2_vec','p1_2_vec','p2_2_vec','p3_2_vec','na_vec','t_vec_i1','w_hot','w_cold','w_cav','n_h','n_c','w_m','f','g'...
             ,'k','g_h','g_c','g_m','dt'};
         save([sub_folder_name,'/unconditional'],myVars{:});
         % plot(x_m_vec,1i*p_m_vec,'LineWidth',2);
@@ -26,8 +26,8 @@ for ur=0:0
         for i1=imin:imax
             Factorisation;
             tvec_dN1=jump_times;
-            myVars2={"tvec_dN1","p1","p2","p3","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m", ...
-                'x_m_vec','p_m_vec','p1_vec','p2_vec','na_vec','t_vec_i1','w_hot','w_cold','w_cav',...
+            myVars2={"tvec_dN1","p1","p2","p3","p1_2","p2_2","p3_2","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m", ...
+                'x_m_vec','p_m_vec','p1_vec','p2_vec','p1_2_vec','p2_2_vec','p3_2_vec','na_vec','t_vec_i1','w_hot','w_cold','w_cav',...
                 'n_h','n_c','w_m','f','g','k','g_h','g_c','g_m','dt'};
             save([sub_folder_name,'/conditional_traj',num2str(i1)],myVars2{:});
             [i1,imax]
@@ -44,15 +44,15 @@ sub_folder_name='Data';
 mkdir('Data/Pics')
 
 % Load conditional trajectory
-i1 = 5; % Use the First trajectory for this analysis
+i1 = 1; % Use the First trajectory for this analysis
 myVars2 = {'tvec_dN1','x_m_vec','p_m_vec','p1_vec','p2_vec','na_vec','t_vec_i1','w_m'};
 load([sub_folder_name,'/conditional_traj',num2str(i1)],myVars2{:})
 
 % Compute normalized time
 t_norm = t_vec_i1 * w_m / pi;
 
-% Select time window: 40.5 to 43.5
-idx = (t_norm >= 40.5) & (t_norm <= 43.5);
+% Select time window: 0 to 1
+idx = (t_norm >= 0) & (t_norm <= 50);
 t_plot = t_norm(idx);
 x_m_plot = x_m_vec(idx);
 p_m_plot = p_m_vec(idx);
@@ -63,7 +63,7 @@ na_plot = na_vec(idx);
 
 % Filter tick times within the time window
 tick_norm = tvec_dN1 * w_m / pi;
-tick_idx = (tick_norm >= 40.5) & (tick_norm <= 43.5);
+tick_idx = (tick_norm >= 1) & (tick_norm <= 50);
 ticks_plot = tick_norm(tick_idx);
 
 % Create figure with 3 subplots
@@ -78,11 +78,11 @@ plot(t_plot, p_m_plot, 'LineWidth', 1.5, 'Color', [0.8500, 0.3250, 0.0980]) % Or
 for i = 1:length(ticks_plot)
     xline(ticks_plot(i), 'k-', 'LineWidth', 1);
 end
-xlim([40.5, 43.5])
-ylim([-30, 30])
-xticks(41:43)
-yticks(-30:10:30)
-xlabel('$\Omega_{\rm m} t/\pi$', 'Interpreter', 'latex', 'FontSize', 24)
+% xlim([40.5, 43.5])
+% ylim([-30, 30])
+% xticks(41:43)
+% yticks(-30:10:30)
+% xlabel('$\Omega_{\rm m} t/\pi$', 'Interpreter', 'latex', 'FontSize', 24)
 ylabel('', 'FontSize', 24)
 legend('$\langle \hat{x}_m \rangle$', '$\langle \hat{p}_m \rangle$', 'Interpreter', 'latex', 'Location', 'northeast', 'FontSize', 24)
 set(gca, 'LineWidth', 1, 'FontSize', 24, 'FontName', 'Helvetica')
@@ -100,11 +100,11 @@ plot(t_plot, p3_plot, 'LineWidth', 1.5, 'Color', [0.4940, 0.1840, 0.5560]) % Pur
 for i = 1:length(ticks_plot)
     xline(ticks_plot(i), 'k-', 'LineWidth', 1);
 end
-xlim([40.5, 43.5])
-ylim([-0.05, 1.05])
-xticks(41:43)
-yticks(0:0.25:1)
-yticklabels({'0.00', '0.25', '0.50', '0.75', '1.00'})
+% xlim([40.5, 43.5])
+% ylim([-0.05, 1.05])
+% xticks(41:43)
+% yticks(0:0.25:1)
+% yticklabels({'0.00', '0.25', '0.50', '0.75', '1.00'})
 xlabel('$\Omega_{\rm m} t/\pi$', 'Interpreter', 'latex', 'FontSize', 24)
 ylabel('', 'FontSize', 24)
 legend('$\langle \hat{p}_1 \rangle$', '$\langle \hat{p}_2 \rangle$', '$\langle \hat{p}_3 \rangle$', 'Interpreter', 'latex', 'Location', 'northeast', 'FontSize', 24)
@@ -121,11 +121,11 @@ plot(t_plot, na_plot, 'LineWidth', 1.5, 'Color', [0, 0.4470, 0.7410]) % Blue
 for i = 1:length(ticks_plot)
     xline(ticks_plot(i), 'k-', 'LineWidth', 1);
 end
-xlim([40.5, 43.5])
-ylim([-0.05, 1.05])
-xticks(41:43)
-yticks(0:0.25:1)
-yticklabels({'0.00', '0.25', '0.50', '0.75', '1.00'})
+% xlim([40.5, 43.5])
+% ylim([-0.05, 1.05])
+% xticks(41:43)
+% yticks(0:0.25:1)
+% yticklabels({'0.00', '0.25', '0.50', '0.75', '1.00'})
 xlabel('$\Omega_{\rm m} t/\pi$', 'Interpreter', 'latex', 'FontSize', 24)
 ylabel('', 'FontSize', 24)
 legend('$\langle \hat{a}^\dagger \hat{a} \rangle$', 'Interpreter', 'latex', 'Location', 'northeast', 'FontSize', 24)
@@ -142,8 +142,9 @@ hold off
 
 sub_folder_name='Data';
 imin = 1;
-iM=1;
-imax = 100; % Number of trajectories to analyze (increase as more data becomes available)
+iM=2;
+plot_filter=1;
+imax = 1; % Number of trajectories to analyze (increase as more data becomes available)
 
 % Initialize arrays to store all inter-tick intervals
 dtj_nofilter = [];  % Without filter
@@ -238,7 +239,7 @@ plot_filter = 0; % Reset filter flag
 %% 4.--- Allan Variance (Filtered Data)
 
 % Allan variance for filtered tick data
-imax=100; % Number of trajectories to analyze (increase as more data becomes available)
+imax=1; % Number of trajectories to analyze (increase as more data becomes available)
 det_filt = 1; % Enable detector filter
 Allan
 
@@ -254,5 +255,38 @@ title('') % Remove title
 
 fprintf('\nAllan variance plot saved!\n');
 
-%% 5.---Autocorrelations
-% please see another code with the same name!
+%% 5.--- Limit Cycle Plots: Conditional Trajectory and Unconditional Limit Cycle Overlay
+figure('Position', [100, 100, 600, 600])
+iM=1;
+sub_folder_name='Data';
+myVars = {'x_m_vec','p_m_vec'};
+load([sub_folder_name,'/conditional_traj1'],myVars{:})
+
+% Create 2D histogram
+histogram2(x_m_vec', p_m_vec', [100, 100], ...
+    'DisplayStyle', 'tile', 'ShowEmptyBins', 'on', 'EdgeColor', 'None')
+axis equal
+colormap('jet')
+ylabel('$\langle \widehat{p}_{\rm m} \rangle$','Interpreter','latex','FontSize', 24);
+xlabel('$\langle \widehat{x}_{\rm m} \rangle$','Interpreter','latex','FontSize', 24);
+%xlim([-60 60])
+%ylim([-60 60])
+%xticks(-30:10:30)
+%xticklabels({'-30','-20','','0','','20','30'})
+%yticks(-30:10:30)
+box on
+set(gca,'linewidth',1,'FontSize',24,'TickLabelInterpreter','latex')
+colorbar off
+
+hold on
+% Plot the unconditional limit cycle on top - last 2 cycles
+myVars_unconditional = {'x_m_vec','p_m_vec','w_m','t_vec_i1'};
+load([sub_folder_name,'/unconditional'],myVars_unconditional{:})
+% Calculate number of periods and select last 2 cycles
+t_periods = w_m * t_vec_i1 / (2*pi);
+idx = t_periods >= (t_periods(end) - 2);
+x_m_cycle = x_m_vec(idx);
+p_m_cycle = p_m_vec(idx);
+plot(x_m_cycle, p_m_cycle, 'LineWidth', 2, 'Color', 'r')
+hold off
+%% End of plotting sections

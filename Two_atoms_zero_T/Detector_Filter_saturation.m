@@ -50,7 +50,7 @@ for itt=1:length(tvec_dN1)
 end
 %%
 %plot the currents
-if plot_filter==1 && i1==2
+if plot_filter==1 && i1==1
     figure(30)
     l = 0;
     u = 5;
@@ -72,7 +72,7 @@ if plot_filter==1 && i1==2
     xline(tvec_dN1_limit,'LineWidth',.01,'LineStyle','--','color',[0,0,0],'HandleVisibility','off')
     xline(tvec_dN1_I2_limit,'LineWidth',2,'color',[0,0,0],'HandleVisibility','off')
     xlim([l,u])
-    ylim([0,1.1])
+    ylim([0,iM+.1])
     fontsize(20,"points")
     set(gca,'linewidth',1)
     if iM <2

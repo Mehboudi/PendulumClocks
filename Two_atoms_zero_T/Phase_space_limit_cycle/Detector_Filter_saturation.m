@@ -31,11 +31,8 @@ end
 threshholdup=max(.3*sqrt(iM+1),.99);%You can change this to match the data better
 % The above two values work great for iM=1:6
 threshholddown=.25*sqrt(iM+1);
-weight=.0;
-threshholddown=threshholddown+weight*log(iM)*threshholdup;
-threshholddown=threshholddown./(1+weight*log(iM))
 if threshholddown <= .5
-    threshholddown=max([iM/(iM+3),0]);
+    threshholddown=iM/(iM+3);
 end
 index=1;
 tvec_dN1_I2=[];
@@ -50,7 +47,7 @@ for itt=1:length(tvec_dN1)
 end
 %%
 %plot the currents
-if plot_filter==1 && i1==2
+if plot_filter==1 && i1==1
     figure(30)
     l = 0;
     u = 5;

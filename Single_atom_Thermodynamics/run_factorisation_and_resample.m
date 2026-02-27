@@ -11,26 +11,30 @@
 % be used for (1) the steady state and limit cycle properties, heat
 % currents etc. (2) the start point (initial conditions) of the unravelled trajectories. 
 % % If you have done it already, comment for further analysis
+%% 1.--- The main simulation loop
 clear all
 iM=1;
 imin=1;
-imax=1;%The number of simulations (After reaching the steady state)
-w_cold=120;w_hot=240;
+imax=100;%The number of simulations (After reaching the steady state)
+%w_cold=120;w_hot=240;
+w_cold=1*120;w_hot=2*120;
 %T_c=120;
 %n_c=1./(exp(w_c./T_c)-1);
 n_h=10;T_h=w_hot/(log((n_h+1)/n_h));
 %iTmax=12;n_c_vec=[logspace(-5,0,iTmax/2),linspace(1,n_h,iTmax/2)];
-iTmax=20;
+iTmax=15;
 n_c_vec=[logspace(-5,-2,iTmax)];
-n_c_vec=unique(n_c_vec);
+%n_c_vec=[linspace(2e-4,8e-4,iTmax)];
+% n_c_vec=unique(n_c_vec);
+%n_c_vec=[1e-5,0.0005,0.006,1e-2];
 iTmax=length(n_c_vec);
 figure
-for iT=1:iTmax
+for iT=1:1:10%iTmax
     n_c=n_c_vec(1,iT);
     T_c=w_cold/(log((n_c+1)/n_c));
-    sub_folder_name=['n_c',num2str(iT)];
+    sub_folder_name=['Data_round300/n_c',num2str(iT)];
     mkdir(sub_folder_name)
-    for ur=0:1
+    for ur=1:1
         if ur==0
             Factorisation;
             myVars = {"p1","p2","p3","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m", ...
@@ -54,22 +58,22 @@ for iT=1:iTmax
         end
     end
 end
-%% Load and Plot the asymptotic limit cycles
+%% 2.--- Load and Plot the asymptotic limit cycles
 % This plots limit cycles of the mechanical resonator.
 figure
-myVars0={'n_c_vec'};
-sub_folder_name='n_c1';
-load([sub_folder_name,'/in_cond_n_c1'],myVars0{:});%Just pick the n_c_vec from the first available mat file
-iTmax=length(n_c_vec);
+%myVars0={'n_c_vec'};
+%sub_folder_name='n_c1';
+%load([sub_folder_name,'/in_cond_n_c1'],myVars0{:});%Just pick the n_c_vec from the first available mat file
+% iTmax=length(n_c_vec);
 icntr=1;
 for iT=1:1:iTmax
     n_c=n_c_vec(1,iT);
     sub_folder_name=['n_c',num2str(iT)];
     myVars = {'x_m_vec','p_m_vec'};
     load([sub_folder_name,'/in_cond_n_c',num2str(iT)],myVars{:})
-    subplot(5,4,iT);icntr=icntr+1;
+    subplot(5,5,iT);icntr=icntr+1;
     %plot(x_m_vec,1i*p_m_vec,'-*','LineWidth',1);
-    plot(-x_m_vec/sqrt(2),1i*p_m_vec/sqrt(2),'linewidth',2);
+    plot(x_m_vec,p_m_vec,'linewidth',2);
     xlim([-35 35])
     ylim([-35 35])
     title(['$\bar n_c=$',num2str(n_c)],'Interpreter','latex');
@@ -82,23 +86,23 @@ for iT=1:1:iTmax
 end
 figure
 plot(x_m_vec)
-%% Mechanical vs hot bath heat currents
+%% 2.1--- Mechanical vs hot bath heat currents
 % Title is self explanatory. It specifically can be checked, for the
 % parameters in the paper, that J_m<<J_hot
-figure
 imin=1;
-imax=1;
-myVars0={'n_c_vec'};
+imax=100;
+%myVars0={'n_c_vec'};
 myVars = {"p1","p2","p3","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m", ...
-               'x_m_vec','p_m_vec','J_h','J_m','J_cold','J_cav','w_hot','w_cold','w_cav','n_c_vec'};
-sub_folder_name='n_c1';
-load([sub_folder_name,'/in_cond_n_c1'],myVars0{:});%Just pick the n_c_vec from the first available mat file
-sTmax=length(n_c_vec);
+               'x_m_vec','p_m_vec','J_h','J_m','J_cold','J_cav','w_hot','w_cold','w_cav'};
+
+%sub_folder_name='n_c1';
+%load([sub_folder_name,'/in_cond_n_c18'],myVars0{:});%Just pick the n_c_vec from the first available mat file
+%sTmax=length(n_c_vec);
 J_hot_vec=zeros(1,iTmax);
 J_m_vec=zeros(1,iTmax);
 J_cold_vec=zeros(1,iTmax);
 J_cav_vec=zeros(1,iTmax);
-for iT=1:iTmax
+for iT=1:1:iTmax
     n_c=n_c_vec(1,iT);
     sub_folder_name=['n_c',num2str(iT)];
     myVars = {'J_h','J_m','J_cold','J_cav','w_hot','w_cold','w_cav'};
@@ -110,21 +114,24 @@ for iT=1:iTmax
 end
 %plot(n_c_vec,[-J_hot_vec/w_hot;J_cold_vec/w_cold;J_cav_vec/w_cav])
 figure
-plot(n_c_vec,[-J_hot_vec;J_m_vec]/(w_m*w_hot))
-fontsize(10,"points")
-set(gca,'linewidth',1)
+plot(n_c_vec, [-J_hot_vec; -J_m_vec]/(w_m*w_hot), 'LineWidth', 1.5)
+set(gca, 'LineWidth', 1, 'FontSize', 14)
 box on
-xlabel('$n_{\rm c}$','Interpreter','latex')
+grid on
+xlabel('$\bar{n}_{\rm c}$', 'Interpreter', 'latex', 'FontSize', 16)
 xscale log
-legend('$J_{\rm h}/\Omega_{\rm m} \omega_{13}$','$J_{\rm m}/ \Omega_{\rm m} \omega_{13}$','interpreter','latex')
-%% Load and analyze the data
+yscale log
+%ylim([-1e-10, 1e0])
+legend('$J_{\rm h}/\Omega_{\rm m} \omega_{13}$', '$J_{\rm m}/\Omega_{\rm m} \omega_{13}$', ...
+    'Interpreter', 'latex', 'FontSize', 14, 'Location', 'best')
+%% 3.--- TUR
 % %-----------------
 % %   Tick stats; No filter
 % %-----------------
 % We look at the tick stats, heat currents, entropy production etc.
 det_filt=0;
 imin=1;
-%imax=1;
+imax=100;
 iTmax=length(n_c_vec);
 N=zeros(1,iTmax);
 mu_=zeros(1,iTmax);
@@ -136,14 +143,14 @@ Jmmat=zeros(iTmax,imax);
 % click_num=zeros(iTmax,imax);
 figure
 scount=0;%counts sub-plot number for histograms.
-for iT=1:iTmax
+for iT=1:1:iTmax
     sub_folder_name=['n_c',num2str(iT)];
     dtj=[];
     muvec=zeros(1,imax);
     varvec=zeros(1,imax);
     %for i1=imin:1:100
     for i1=imin:1:imax
-        myVars = {"tvec_dN1",'w_m','w_hot','w_cold','w_cav','J_h','J_m','J_cold','J_cav','n_c_vec','Q_h','Q_h_f'};
+        myVars = {"tvec_dN1",'w_m','w_hot','w_cold','w_cav','J_h','J_m','J_cold','J_cav','Q_h','Q_h_f'};
         load([sub_folder_name,'/in_cond_n_c',num2str(iT),'traj',num2str(i1)],myVars{:})
         %%%%This line will be passed only if you want to filter (detector dead time)
         if det_filt==1
@@ -166,14 +173,14 @@ for iT=1:iTmax
         % click_num(iT,i1)=length(tvec_dN1);
         %%%Other currents
     end
-    mu_(1,iT)=mean(muvec)
-    var_(1,iT)=mean(varvec)%Note we take mean of the var over different rounds.
+    mu_(1,iT)=mean(muvec);
+    var_(1,iT)=mean(varvec);%Note we take mean of the var over different rounds.
     N(1,iT)=mu_(1,iT).^2./var_(1,iT);
     % % %%
     bin=40;
     % hold on
     scount=scount+1;
-    subplot(4,5,scount)
+    subplot(5,6,scount)
     histogram(dtj(2:end),bin,'LineStyle','none')
     % Create xline
     xline([0 1 2]);
@@ -265,50 +272,25 @@ ent_prod=J_hot_vec.*(1./T_h-1./T_c_vec);%J_hot_vec comes from the previous code 
 %Allan
 % figure
 % histogram(dtj_stable,bin)
-%----------------
-%%%Put on the same figure the accuracy and the entropy production
-%Next section should be ran right after, so that the next graph is
-%overlayed on the last one from this section.
-%----------------
-figure
-hold on
-yyaxis left
-plot(n_c_vec,N,'LineWidth',2)
-xlabel('$n_{\rm c}$','Interpreter','latex')
-ylabel('${\cal N}$','Interpreter','latex')
-%title('\rm Accuracy')
-grid on
-%
-yyaxis right
-plot(n_c_vec,ent_prod/(w_m),'LineWidth',2)%I am deviding by the mechanical frequency
-xlabel('$n_{\rm c}$','Interpreter','latex')
-ylabel('$\dot \Sigma /\Omega_{\rm m}$','Interpreter','latex')
-%title('\dot \Sigma')
-grid on
-xscale log
-yscale log
-xlim([n_c_vec(1,1) n_c_vec(1,end)])
-xlim([n_c_vec(1,1) .01])
-fontsize(20,"points")
-set(gca,'linewidth',1)
-box on
-%% Now, Take the ticks, and consider the dead-time of the detectors
+%% 4.--- Now, Take the ticks, and consider the dead-time of the detectors
 % %-----------------
 % %   Tick stats; Filter
 % %-----------------
 plot_filter=0;
 det_filt=1;
 imin=1;
-%imax=10;
+imax=100;
 dtj=[];
 muvec=zeros(1,imax);
 varvec=zeros(1,imax);
+mu_=zeros(1,iTmax);
+var_=zeros(1,iTmax);
 N=zeros(1,iTmax);
 Qhfmat=zeros(iTmax,imax);
-for iT=1:1:iTmax
+for iT= 1:1:iTmax
     sub_folder_name=['n_c',num2str(iT)];
-    for i1=imin:1:imax
-        myVars = {"tvec_dN1",'w_m','w_hot','w_cold','w_cav','Q_h_f','n_c_vec'};
+    for i1=1:1:imax
+        myVars = {"tvec_dN1",'w_m','w_hot','w_cold','w_cav','Q_h_f'};
         load([sub_folder_name,'/in_cond_n_c',num2str(iT),'traj',num2str(i1)],myVars{:})
         %%%%This line will be passed only if you want to filter (detector dead time)
         %%%The detector parameters are set on the other code, check it out
@@ -332,9 +314,8 @@ for iT=1:1:iTmax
     % std_=std(dtj)
     % std_stable=std(dtj_stable)
     %%%IMPORTANT: This is a test, change back to the immediate lower two lines!!!
-    mu_=mean(muvec,'omitnan');
-    var_=mean(varvec,'omitnan');
-    N(1,iT)=mu_.^2./var_
+    mu_(1,iT)=mean(muvec,'omitnan');
+    var_(1,iT)=mean(varvec,'omitnan');
     %%%Total HEAT including f
     Qhfmat(iT,i1)=Q_h_f;
     %%%
@@ -349,317 +330,70 @@ for iT=1:1:iTmax
     % % Create xlabel
     % xlabel('$\omega_m t/\pi$','Interpreter','latex');
 end
-mu_
-var_
-N
-yyaxis left
-plot(n_c_vec,N,'LineWidth',2)
-xlim([n_c_vec(1,1) n_c_vec(1,end)])
-xscale log
-yscale log
-grid on
-%%%%
-% figure
-% plot(n_c_vec,N)
-% xlim([n_c_vec(1,1) n_c_vec(1,end)])
-% xscale log
-% fontsize(20,"points")
-% set(gca,'linewidth',1)
-% grid on
-%%%
-% %%%HEAT CURRENT
-% Qhfmean=mean(Qhfmat,2,'omitnan');
-% Qhfstd=std(Qhfmat','omitnan');
-% T_c_vec=w_cold./(log((1+n_c_vec)./n_c_vec));
-% ent_prod=w_hot*Qhfmean'.*(1./T_h-1/T_c_vec);
-% figure
-% plot(n_c_vec,Qhfmean)
-% figure
-% plot(n_c_vec,ent_prod)
-% %Allan
-% % figure
-% % histogram(dtj_stable,bin)
-%%
-%%
-%%
-%%
-%%%
-% what if we look at nu N?
-%%%
-%Run this code section by section if you know what you are doing. That
-%would allow you to control, chose, what you are doing. Specially, the
-%first section below is the most time consuming, generates data, and saves it into your computer. Later
-%sections are analysing this data. You can come back to your saved data
-%anytime, just make sure you don't get any errors when saving. A priori,
-%you should not get errors, but you may need to change file directories
-%etc.
-%% Simulate trajectories.
-% This simulates trajectories (imax) for each cold bath occupation (n_c_vec)
-% It first runs the code for a longer time, without unraveling. This will
-% be used for (1) the steady state and limit cycle properties, heat
-% currents etc. (2) the start point (initial conditions) of the unravelled trajectories. 
-% % If you have done it already, comment for further analysis
-imin=1;
-imax=100;%The number of simulations (After reaching the steady state)
-w_cold=120;w_hot=240;
-%T_c=120;
-%n_c=1./(exp(w_c./T_c)-1);
-n_h=10;T_h=w_hot/(log((n_h+1)/n_h));
-%iTmax=12;n_c_vec=[logspace(-5,0,iTmax/2),linspace(1,n_h,iTmax/2)];
-iTmax=20;
-n_c_vec=[logspace(-5,-2,iTmax)];
-n_c_vec=unique(n_c_vec);
-iTmax=length(n_c_vec);
-figure
-for iT=1:1
-    n_c=n_c_vec(1,iT);
-    sub_folder_name=['n_c',num2str(iT)];
-    mkdir(sub_folder_name)
-    for ur=1:1
-        if ur==0
-            Factorisation;
-            myVars = {"p1","p2","p3","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m", ...
-                'x_m_vec','p_m_vec','J_h','J_m','J_cold','J_cav','w_hot','w_cold','w_cav','n_c_vec'};
-            save([sub_folder_name,'/in_cond_n_c',num2str(iT)],myVars{:});
-            subplot(9,5,iT);
-            plot(x_m_vec,1i*p_m_vec,'-*','LineWidth',1);
-            xlim([-40 40])
-            ylim([-50 50])
-            title('nc=',num2str(n_c));
-            [iT iTmax]
-        else
-            for i1=imin:imax
-                [i1,imax; iT, iTmax]
-                Factorisation;
-                tvec_dN1=jump_times;
-                myVars2={"tvec_dN1","w_m",'w_hot','w_cold','w_cav',"n_h", 'Q_h','Q_h_f',...
-                    'J_h','J_m','J_cold','J_cav','n_c_vec'};
-                save([sub_folder_name,'/in_cond_n_c',num2str(iT),'traj',num2str(i1)],myVars2{:});
-            end
-        end
-    end
-end
-%% Load and Plot the asymptotic limit cycles
-% This plots limit cycles of the mechanical resonator.
-figure
-myVars0={'n_c_vec'};
-sub_folder_name='n_c1';
-load([sub_folder_name,'/in_cond_n_c1'],myVars0{:});%Just pick the n_c_vec from the first available mat file
-iTmax=length(n_c_vec);
-icntr=1;
-for iT=1:1:iTmax
-    n_c=n_c_vec(1,iT);
-    sub_folder_name=['n_c',num2str(iT)];
-    myVars = {'x_m_vec','p_m_vec'};
-    load([sub_folder_name,'/in_cond_n_c',num2str(iT)],myVars{:})
-    subplot(5,4,iT);icntr=icntr+1;
-    %plot(x_m_vec,1i*p_m_vec,'-*','LineWidth',1);
-    plot(x_m_vec,1i*p_m_vec,'linewidth',2);
-    xlim([-35 35])
-    ylim([-35 35])
-    title(['$\bar n_c=$',num2str(n_c)],'Interpreter','latex');
-    fontsize(20,"points")
-    set(gca,'linewidth',1)
-    %ylabel('$i\left\langle b - b^{\dagger} \right\rangle$',...
-        %'Interpreter','latex','FontSize', 10);
-    %xlabel('$\left\langle b+b^{\dagger} \right\rangle$','Interpreter','latex','FontSize', 10);
-    [iT iTmax]
-end
-figure
-plot(x_m_vec)
-%% Mechanical vs hot bath heat currents
-% Title is self explanatory. It specifically can be checked, for the
-% parameters in the paper, that J_m<<J_hot
-figure
-imin=1;
-imax=100;
-myVars0={'n_c_vec'};
-myVars = {"p1","p2","p3","na","re_ad_s12","im_ad_s12","na_p3","x_m","p_m", ...
-               'x_m_vec','p_m_vec','J_h','J_m','J_cold','J_cav','w_hot','w_cold','w_cav','n_c_vec'};
-sub_folder_name='n_c1';
-load([sub_folder_name,'/in_cond_n_c1'],myVars0{:});%Just pick the n_c_vec from the first available mat file
-sTmax=length(n_c_vec);
-J_hot_vec=zeros(1,iTmax);
-J_m_vec=zeros(1,iTmax);
-J_cold_vec=zeros(1,iTmax);
-J_cav_vec=zeros(1,iTmax);
-for iT=1:iTmax
-    n_c=n_c_vec(1,iT);
-    sub_folder_name=['n_c',num2str(iT)];
-    myVars = {'J_h','J_m','J_cold','J_cav','w_hot','w_cold','w_cav'};
-    load([sub_folder_name,'/in_cond_n_c',num2str(iT)],myVars{:})
-    J_hot_vec(1,iT)=J_h;
-    J_m_vec(1,iT)=J_m;
-    J_cold_vec(1,iT)=J_cold;
-    J_cav_vec(1,iT)=J_cav;
-end
-%plot(n_c_vec,[-J_hot_vec/w_hot;J_cold_vec/w_cold;J_cav_vec/w_cav])
-figure
-plot(n_c_vec,[-J_hot_vec;J_m_vec])
-fontsize(10,"points")
-set(gca,'linewidth',1)
-box on
-xlabel('$n_{\rm c}$','Interpreter','latex')
-xscale log
-legend('$J_{\rm h}$','$J_{\rm m}$','interpreter','latex')
-%% Load and analyze the data
-% %-----------------
-% %   Tick stats; No filter
-% %-----------------
-% We look at the tick stats, heat currents, entropy production etc.
-det_filt=0;
-imin=1;
-imax=100;
-iTmax=length(n_c_vec);
-N=zeros(1,iTmax);
-mu_=zeros(1,iTmax);
-Var_=zeros(1,iTmax);
-Jhmat=zeros(iTmax,imax);
-Jmmat=zeros(iTmax,imax);
-Jcoldmat=zeros(iTmax,imax);
-Jcavmat=zeros(iTmax,imax);
-click_num=zeros(iTmax,imax);
-figure
-scount=0;%counts sub-plot number for histograms.
-for iT=1:iTmax
-    sub_folder_name=['n_c',num2str(iT)];
-    dtj=[];
-    muvec=zeros(1,imax);
-    varvec=zeros(1,imax);
-    %for i1=imin:1:100
-    for i1=imin:1:imax
-        myVars = {"tvec_dN1",'w_m','w_hot','w_cold','w_cav','J_h','J_m','J_cold','J_cav','n_c_vec','Q_h','Q_h_f'};
-        load([sub_folder_name,'/in_cond_n_c',num2str(iT),'traj',num2str(i1)],myVars{:})
-        %%%%This line will be passed only if you want to filter (detector dead time)
-        if det_filt==1
-            Detector_Filter_saturation;
-            tvec_dN1=tvec_dN1_I2(1:end);
-        end
-        %Let's renormalise everything!
-        tvec_dN1=tvec_dN1*w_m/pi;
-        %%%%Otherwise carryout as usual
-        dtjump=[diff([0,tvec_dN1])];sdtj=length(dtjump);
-        size(dtjump);
-        dtj=[dtj,dtjump(2:end)];
-        muvec(1,i1)=mean(dtjump);
-        varvec(1,i1)=std(dtjump)^2;
-        %%%HEAT CURRENT
-        Jhmat(iT,i1)=J_h;
-        Jmmat(iT,i1)=J_m;
-        Jcoldmat(iT,i1)=J_cold;
-        Jcavmat(iT,i1)=J_cav;
-        click_num(iT,i1)=length(tvec_dN1);
-        %%%Other currents
-    end
-    mu_(1,iT)=mean(muvec)
-    var_(1,iT)=mean(varvec)%Note we take mean of the var over different rounds.
-    N(1,iT)=mu_(1,iT).^2./var_(1,iT);
-    % % %%
-    bin=40;
-    % hold on
-    scount=scount+1;
-    subplot(4,5,scount)
-    histogram(dtj(2:end),bin,'LineStyle','none')
-    % Create xline
-    xline([0 1 2]);
-    tname=(['$\omega_m =$',num2str(w_m),'$n_c = $',num2str(n_c_vec(1,iT)), ...
-        '$~~~\mu=$',num2str(mu_),'~~$\sigma^2=$',num2str(var_),'~~$N=$',num2str(N) ]);
-    %title(tname,'Interpreter','latex')
-    % Create xlabel
-    %xlabel('$\omega_m t/\pi$','Interpreter','latex');
-    n_c=n_c_vec(1,iT);
-    title(['$\bar n_c=$',num2str(n_c)],'Interpreter','latex');
-    fontsize(10,"points")
-    set(gca,'linewidth',1)
-    box on
-end
-T_c_vec=w_cold./(log((1+n_c_vec)./n_c_vec));
-%ent_prod=Jhmean'.*(1./T_h-1./T_c_vec);
-ent_prod=J_hot_vec.*(1./T_h-1./T_c_vec);
-figure
+N=mu_.^2./var_;
+%----------------
+%%%Put on the same figure the accuracy and the entropy production
+%Now using filtered data from section 4
+%----------------
+ent_prod=J_hot_vec.*(1./T_h-1./T_c_vec);%J_hot_vec comes from the previous code (unconditional evolution)
+figure('Position', [100 100 800 400])
 hold on
 yyaxis left
-plot(n_c_vec,N./mu_,'LineWidth',2)
-xlabel('$n_{\rm c}$','Interpreter','latex')
-ylabel('${\cal N}\nu$','Interpreter','latex')
-%title('\rm Accuracy')
-grid on
+plot(n_c_vec, N, 'x-', 'LineWidth', 1.5, 'MarkerSize', 8, 'Color', [0 0.4470 0.7410])
+ylabel('${\cal N}$', 'Interpreter', 'latex', 'FontSize', 20, 'Color', [0 0.4470 0.7410])
+set(gca, 'YColor', [0 0.4470 0.7410])
+%ylim([0 50])
 %
 yyaxis right
-plot(n_c_vec,ent_prod/(w_m),'LineWidth',2)%I am deviding by total number of cycles (tmax*w_m/pi)
-xlabel('$n_{\rm c}$','Interpreter','latex')
-ylabel('$\dot \Sigma /\Omega_{\rm m}$','Interpreter','latex')
-%title('\dot \Sigma')
-grid on
+% note that tau=mu_*pi/w_m; teh definition requires the natural time units, not normalised ones
+plot(n_c_vec, ent_prod.*(mu_*pi/w_m), 'o-', 'LineWidth', 1.5, 'MarkerSize', 6, 'Color', [0.8500 0.3250 0.0980])
+ylabel('${\langle \tau \rangle}{\dot \Sigma}$', 'Interpreter', 'latex', 'FontSize', 20, 'Color', [0.8500 0.3250 0.0980])
+set(gca, 'YColor', [0.8500 0.3250 0.0980])
+%ylim([0 50])
+%
+xlabel('${\bar n}_{\rm c}$', 'Interpreter', 'latex', 'FontSize', 20)
 xscale log
-yscale log
-xlim([n_c_vec(1,1) n_c_vec(1,end)])
 xlim([n_c_vec(1,1) .01])
-fontsize(20,"points")
-set(gca,'linewidth',1)
-box on
-%% Now, Take the ticks, and consider the dead-time of the detectors
-% %-----------------
-% %   Tick stats; Filter
-% %-----------------
-det_filt=1;
-imin=1;
-%imax=10;
-dtj=[];
-muvec=zeros(1,imax);
-varvec=zeros(1,imax);
-N=zeros(1,iTmax);
-Qhfmat=zeros(iTmax,imax);
-for iT=1:1:20
-    sub_folder_name=['n_c',num2str(iT)];
-    for i1=imin:1:imax
-        myVars = {"tvec_dN1",'w_m','w_hot','w_cold','w_cav','Q_h_f','n_c_vec'};
-        load([sub_folder_name,'/in_cond_n_c',num2str(iT),'traj',num2str(i1)],myVars{:})
-        %%%%This line will be passed only if you want to filter (detector dead time)
-        %%%The detector parameters are set on the other code, check it out
-        %%%there.
-        if det_filt==1
-            Detector_Filter_saturation;
-            tvec_dN1=tvec_dN1_I2(1:end);
-        end
-        %Let's renormalise everything!
-        tvec_dN1=tvec_dN1*w_m/pi;
-        %%%%Otherwise carryout as usual
-        dtjump=[diff([0,tvec_dN1])];sdtj=length(dtjump);
-        dtj=[dtj,dtjump];
-        muvec(1,i1)=mean(dtjump(2:end));
-        varvec(1,i1)=std(dtjump(2:end))^2;
-        [i1 imax;iT iTmax]
-    end
-    dtj=dtj(2:end);
-    % res=mean(dtj)
-    % res_stable=mean(dtj_stable)
-    % std_=std(dtj)
-    % std_stable=std(dtj_stable)
-    %%%IMPORTANT: This is a test, change back to the immediate lower two lines!!!
-    mu_=mean(muvec,'omitnan');
-    var_=mean(varvec,'omitnan');
-    N(1,iT)=mu_.^2./var_
-    %%%Total HEAT including f
-    Qhfmat(iT,i1)=Q_h_f;
-    %%%
-    % bin=200;
-    % figure
-    % hold on
-    % histogram(dtj(2:end),bin)
-    % % Create xline
-    % xline([0 1 2]);
-    % tname=(['$\omega_m =$',num2str(w_m),';~~~$\mu=$',num2str(mu_),',~~$\sigma^2=$',num2str(var_),',~~$N=$',num2str(N)]);
-    % title(tname,'Interpreter','latex')
-    % % Create xlabel
-    % xlabel('$\omega_m t/\pi$','Interpreter','latex');
-end
-mu_
-var_
-N
-yyaxis left
-plot(n_c_vec,N./mu_,'LineWidth',2)
-xlim([n_c_vec(1,1) n_c_vec(1,end)])
-xscale log
-yscale log
+fontsize(16, "points")
+set(gca, 'LineWidth', 1)
 grid on
+box on
+
+% Second figure: TUR violation
+figure('Position', [100 100 600 400])
+hold on
+% Add gray shaded region above y=1
+x_fill = [n_c_vec(1,1), .01, .01, n_c_vec(1,1)];
+y_fill = [1, 1, 5, 5];
+fill(x_fill, y_fill, [0.9 0.9 0.9], 'EdgeColor', 'none', 'FaceAlpha', 0.5)
+% Add horizontal dashed line at y=1 (TUR bound)
+plot([n_c_vec(1,1) .01], [1 1], '-', 'LineWidth', 1.5, 'MarkerSize', 8, 'Color', [0 0.4470 0.7410])
+% Plot data without markers
+% Note: We use the convention tau = mu_*pi/w_m; because we want it in real time units, not normalised
+TUR_quantity = 2*mu_./var_./ent_prod./(pi/w_m); % 2*N/<tau>*dot{Sigma} = 2*mu/var
+plot(n_c_vec, TUR_quantity, 'x--', 'LineWidth', 1.5)
+xlabel('${\bar n}_{\rm c}$', 'Interpreter', 'latex', 'FontSize', 20)
+ylabel('$2{\cal N}/({\langle \tau \rangle}{\dot \Sigma})$', 'Interpreter', 'latex', 'FontSize', 20)
+set(gca, 'XScale', 'log')
+xlim([n_c_vec(1,1) .01])
+ylim([0 5])
+fontsize(22, "points")
+set(gca, 'LineWidth', 1)
+grid on
+box on
+%% 5.--- mean tau
+% Calculate tau
+tau = mu_*pi/w_m; % remove normalisation
+
+% Plot tau vs n_c
+figure('Position', [100 100 800 400])
+hold on
+plot(n_c_vec, tau, 'x-', 'LineWidth', 1.5, 'MarkerSize', 8)
+xlabel('${\bar n}_{\rm c}$', 'Interpreter', 'latex', 'FontSize', 22)
+ylabel('$\langle \tau \rangle$', 'Interpreter', 'latex', 'FontSize', 22)
+xscale log
+xlim([n_c_vec(1,1) .01])
+fontsize(22, "points")
+set(gca, 'LineWidth', 1)
+grid on
+box on
