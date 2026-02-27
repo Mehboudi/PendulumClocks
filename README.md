@@ -48,8 +48,9 @@ The main folders are:
 - `Multiple_atoms/`  
   Multi-atom scenario; produces Figs. 11–12 of the paper.
 
+- `Benchmark/` Notebook providing evidence on the validity of the mean field approximation. Used for generating the Figure 13 in the appendix. 
 
-Within each scenario folder you will typically find:
+Within each scenario (exept for Benchmark) folder you will typically find:
 - `run_factorisation_and_resample.m` (main “driver” script for that folder)
 - `Factorisation.m` (core model setup/propagation parameters)
 - `Detector_Filter_saturation.m` (tick detection / detector current processing)
@@ -73,6 +74,7 @@ Notes:
 
 ### 1) Choose a target folder
 Pick the folder corresponding to the figure/physics scenario you want to reproduce (e.g. `Single_atom_zero_T/`, `Multiple_atoms/`, etc.), and set MATLAB’s **Current Folder** to that directory.
+#### 1.1) for the `Benchmark/`, folder, there is only one notebook. Everything is ran and depicted within this notebook. You have to use a Julia Kernell to run this notebook.
 
 ### 2) Generate trajectories and saved data (required per folder)
 Open and run [the first section of]:
